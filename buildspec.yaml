@@ -3,10 +3,10 @@ env:
   variables: 
     CONTAINER_PLATFORM: "linux/amd64" 
     EKS_DEPLOYMENT_FILE: "deployment-service-ingress.yml" 
-    ECR_REPONAME: "eksdc" 
+    ECR_REPONAME: "eksdr" 
     EKS_DEPLOYMENT_PATH: "/" 
-    EKS_NAMESPACE: "dc-ns" 
-    EKS_SERVICE: "dc-svc" 
+    EKS_NAMESPACE: "dr-ns" 
+    EKS_SERVICE: "dr-svc" 
     REGION: "ap-south-1" 
     EKS_CONTAINER_PORT: "8063" 
     EKS_PORT: "443" 
