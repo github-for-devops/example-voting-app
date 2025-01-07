@@ -1,0 +1,64 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  namespace: EKS_NAMESPACE_TAG 
+  labels: 
+    app.kubernetes.io/name: EKS_SERVICE_TAG 
+    app.kubernetes.io/managed-by: kubectl 
+  name: EKS_SERVICE_TAG 
+spec: 
+  replicas: EKS_REPLICAS_TAG 
+  selector: 
+    matchLabels: 
+      app: EKS_SERVICE_TAG 
+  template: 
+    metadata: 
+      labels: 
+        app: EKS_SERVICE_TAG 
+    spec: 
+      containers: 
+        - image: EKS_IMAGE_TAG 
+          imagePullPolicy: Always 
+          resources: 
+            limits: 
+              memory: EKS_MEM_LIMIT_TAG 
+              cpu: EKS_CPU_LIMIT_TAG 
+            requests: 
+              memory: EKS_MEM_REQUEST_TAG 
+              cpu: EKS_CPU_REQUEST_TAG 
+          name: EKS_SERVICE_TAG 
+          ports: 
+            - containerPort: EKS_CONTAINER_PORT_TAG 
+--- 
+#####service###### 
+apiVersion: v1
+kind: Service 
+metadata: 
+  namespace: EKS_NAMESPACE_TAG 
+  name: EKS_SERVICE_TAG 
+spec: 
+  selector: 
+    app: EKS_SERVICE_TAG 
+  type: NodePort 
+  ports: 
+    - port: EKS_PORT_TAG 
+      targetPort: EKS_CONTAINER_PORT_TAG 
+---       
+##########ingress############# 
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
+metadata: 
+  name: EKS_SERVICE_TAG 
+  namespace: EKS_NAMESPACE_TAG 
+spec: 
+  ingressClassName: nginx 
+  rules: 
+    - http: 
+        paths: 
+          - path: EKS_DEPLOYMENT_PATH_TAG 
+            pathType: Prefix 
+            backend: 
+              service: 
+                name: EKS_SERVICE_TAG 
+                port: 
+                  number: EKS_CONTAINER_PORT_TAG 
