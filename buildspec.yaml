@@ -26,6 +26,8 @@ phases:
   build: 
     commands: 
       - echo "Building Docker image" 
+      - echo $ECR_REPONAME
+      - docker info
       - docker build -t $ECR_REPONAME:latest example-voting-app/
 
       - docker tag $ECR_REPONAME:latest $ECR_REPOSITORY_URI/$ECR_REPONAME:latest 
