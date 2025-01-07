@@ -1,0 +1,83 @@
+version: 0.2 
+env: 
+  variables: 
+    CONTAINER_PLATFORM: "linux/amd64" 
+    EKS_DEPLOYMENT_FILE: "deployment-service-ingress.yml" 
+    ECR_REPONAME: "eksdc" 
+    EKS_DEPLOYMENT_PATH: "/" 
+    EKS_NAMESPACE: "dc-ns" 
+    EKS_SERVICE: "dc-svc" 
+    REGION: "ap-south-1" 
+    EKS_CONTAINER_PORT: "8063" 
+    EKS_PORT: "443" 
+    ENVISTAGE: "DEV" 
+    ECR_REPOSITORY_URI: "242201294574.dkr.ecr.ap-south-1.amazonaws.com" 
+    EKS_CLUSTER: "testeksdc" 
+    EKS_REPLICAS: "1" 
+    EKS_CPU_REQUEST: "50m" 
+    EKS_CPU_LIMIT: "150m" 
+    EKS_MEM_REQUEST": 64Mi" 
+    EKS_MEM_LIMIT: "256Mi" 
+phases: 
+  pre_build: 
+    commands: 
+      - echo "Determining Nothing" 
+
+  build: 
+    commands: 
+      - echo "Building Docker image" 
+      - docker build -t $ECR_REPONAME:latest . 
+
+      - docker tag $ECR_REPONAME:latest $ECR_REPOSITORY_URI/$ECR_REPONAME:latest 
+
+      - echo "Logging in to Amazon ECR..." 
+
+      - aws --version 
+
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI 
+
+      - echo "Pushing the Docker images to ECR" 
+
+      - docker push $ECR_REPOSITORY_URI/$ECR_REPONAME:latest 
+
+      - | 
+
+        echo "Retrieving and sorting images from ECR..." 
+
+        images=$(aws ecr describe-images --repository-name $ECR_REPONAME --query 'imageDetails[*].[imageDigest, imagePushedAt]' --output json) 
+
+        sorted_images=$(echo $images | jq 'sort_by(.[1])') 
+
+        images_to_delete=$(echo $sorted_images | jq -r '.[:-5][][0]') 
+
+        echo "Deleting old images..." 
+
+        for image_digest in $images_to_delete; do 
+
+          aws ecr batch-delete-image --repository-name $ECR_REPONAME --image-ids imageDigest=$image_digest 
+
+        done 
+
+  post_build: 
+    commands: 
+      - echo "Deploying Service in EKS" 
+      - echo "Installing kubectl" 
+      - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl 
+      - chmod +x kubectl 
+      - mkdir -p $HOME/bin && cp kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH 
+      - aws eks update-kubeconfig --region $REGION --name $EKS_CLUSTER 
+      - sed -i 's@EKS_NAMESPACE_TAG@'"$EKS_NAMESPACE"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_SERVICE_TAG@'"$EKS_SERVICE"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_REPLICAS_TAG@'"$EKS_REPLICAS"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_CPU_REQUEST_TAG@'"$EKS_CPU_REQUEST"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_CPU_LIMIT_TAG@'"$EKS_CPU_LIMIT"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_MEM_REQUEST_TAG@'"$EKS_MEM_REQUEST"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_MEM_LIMIT_TAG@'"$EKS_MEM_LIMIT"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_IMAGE_TAG@'"$ECR_REPOSITORY_URI/$ECR_REPONAME:latest"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_PORT_TAG@'"$EKS_PORT"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_CONTAINER_PORT_TAG@'"$EKS_CONTAINER_PORT"'@' $EKS_DEPLOYMENT_FILE 
+      - sed -i 's@EKS_DEPLOYMENT_PATH_TAG@'"$EKS_DEPLOYMENT_PATH"'@' $EKS_DEPLOYMENT_FILE 
+      - kubectl apply -f $EKS_DEPLOYMENT_FILE -n $EKS_NAMESPACE 
+      - kubectl rollout restart deployment $EKS_SERVICE -n $EKS_NAMESPACE 
+      - kubectl get pods -A 
+      - echo "Deployed Service in EKS" 
