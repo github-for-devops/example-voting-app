@@ -35,7 +35,7 @@ spec:
       volumes:
         - name: efs-storage
           persistentVolumeClaim:
-            claimName: efs-pvc-jrm
+            claimName: efs-pvc
 --- 
 #####service###### 
 apiVersion: v1
