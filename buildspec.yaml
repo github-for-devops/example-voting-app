@@ -9,7 +9,7 @@ env:
     EKS_SERVICE: "dc-svc" 
     REGION: "ap-south-1" 
     EKS_CONTAINER_PORT: "80" 
-    EKS_PORT: "80" 
+    EKS_PORT: "31679" 
     ENVISTAGE: "DEV" 
     ECR_REPOSITORY_URI: "242201294574.dkr.ecr.ap-south-1.amazonaws.com" 
     EKS_CLUSTER: "testeksdc" 
