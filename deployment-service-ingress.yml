@@ -31,7 +31,7 @@ spec:
             - containerPort: EKS_CONTAINER_PORT_TAG 
           volumeMounts:  
             - name: efs-storage  
-              mountPath: /mnt/data  
+              mountPath: "/mnt/data"  
       volumes:  
         - name: efs-storage  
           persistentVolumeClaim:
