@@ -26,12 +26,12 @@ phases:
   build: 
     commands: 
       - echo "Building Docker image" 
-      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI 
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 242201294574.dkr.ecr.ap-south-1.amazonaws.com
       - echo $ECR_REPONAME
       - docker info
-      - docker build -t $ECR_REPONAME:latest .
+      - docker build -t eksdc:latest .
 
-      - docker tag $ECR_REPONAME:latest $ECR_REPOSITORY_URI/$ECR_REPONAME:latest 
+      - docker tag eksdc:latest242201294574.dkr.ecr.ap-south-1.amazonaws.com/eksdc:latest 
 
       - echo "Logging in to Amazon ECR..." 
 
@@ -39,7 +39,7 @@ phases:
 
       - echo "Pushing the Docker images to ECR" 
 
-      - docker push $ECR_REPOSITORY_URI/$ECR_REPONAME:latest 
+      - docker push 242201294574.dkr.ecr.ap-south-1.amazonaws.com/eksdc:latest 
 
       - | 
 
