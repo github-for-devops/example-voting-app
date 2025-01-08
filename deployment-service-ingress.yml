@@ -1,41 +1,41 @@
-apiVersion: apps/v1 
-kind: Deployment 
-metadata: 
-  namespace: EKS_NAMESPACE_TAG 
-  labels: 
-    app.kubernetes.io/name: EKS_SERVICE_TAG 
-    app.kubernetes.io/managed-by: kubectl 
-  name: EKS_SERVICE_TAG 
-spec: 
-  replicas: EKS_REPLICAS_TAG 
-  selector: 
-    matchLabels: 
-      app: EKS_SERVICE_TAG 
-  template: 
-    metadata: 
-      labels: 
-        app: EKS_SERVICE_TAG 
-    spec: 
-      containers: 
-        - image: EKS_IMAGE_TAG 
-          imagePullPolicy: Always 
-          resources: 
-            limits: 
-              memory: EKS_MEM_LIMIT_TAG 
-              cpu: EKS_CPU_LIMIT_TAG 
-            requests: 
-              memory: EKS_MEM_REQUEST_TAG 
-              cpu: EKS_CPU_REQUEST_TAG 
-          name: EKS_SERVICE_TAG 
-          ports: 
-            - containerPort: EKS_CONTAINER_PORT_TAG 
-        volumeMounts:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: EKS_NAMESPACE_TAG
+  labels:
+    app.kubernetes.io/name: EKS_SERVICE_TAG
+    app.kubernetes.io/managed-by: kubectl
+  name: EKS_SERVICE_TAG
+spec:
+  replicas: EKS_REPLICAS_TAG
+  selector:
+    matchLabels:
+      app: EKS_SERVICE_TAG
+  template:
+    metadata:
+      labels:
+        app: EKS_SERVICE_TAG
+    spec:
+      containers:
+        - image: EKS_IMAGE_TAG
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: EKS_MEM_LIMIT_TAG
+              cpu: EKS_CPU_LIMIT_TAG
+            requests:
+              memory: EKS_MEM_REQUEST_TAG
+              cpu: EKS_CPU_REQUEST_TAG
+          name: EKS_SERVICE_TAG
+          ports:
+            - containerPort: EKS_CONTAINER_PORT_TAG
+          volumeMounts:
             - name: efs-storage
-            - mountPath: /mnt/data
+              mountPath: /mnt/data
       volumes:
         - name: efs-storage
           persistentVolumeClaim:
-            claimName: efs-pvc
+            claimName: efs-pvc-jrm
 --- 
 #####service###### 
 apiVersion: v1
