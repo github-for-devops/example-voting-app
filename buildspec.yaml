@@ -32,7 +32,7 @@ phases:
       - docker info
       - docker build -t eksdc:latest .
 
-      - docker tag eksdc:latest242201294574.dkr.ecr.ap-south-1.amazonaws.com/eksdc:latest 
+      - docker tag eksdc:latest 242201294574.dkr.ecr.ap-south-1.amazonaws.com/eksdc:latest 
 
       - echo "Logging in to Amazon ECR..." 
 
